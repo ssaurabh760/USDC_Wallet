@@ -2,6 +2,10 @@
 
 A simple Python/FastAPI project that simulates how Circle's stablecoin infrastructure works. Built for learning crypto/fintech backend concepts.
 
+**Now with a React frontend dashboard!**
+
+---
+
 ## 🎯 What You'll Learn
 
 1. **Mint/Burn Mechanics** - How stablecoins are created and destroyed
@@ -14,6 +18,8 @@ A simple Python/FastAPI project that simulates how Circle's stablecoin infrastru
 
 ## 🚀 Quick Start
 
+### Backend (API Server)
+
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
@@ -23,6 +29,66 @@ python main.py
 
 # 3. Open API docs
 # Go to: http://localhost:8000/docs
+```
+
+### Frontend (React Dashboard)
+
+```bash
+# Option 1: Using Create React App
+npx create-react-app usdc-frontend
+cd usdc-frontend
+
+# Replace src/App.js with usdc-wallet-frontend.jsx content
+# Then run:
+npm start
+
+# Option 2: Using Vite (faster)
+npm create vite@latest usdc-frontend -- --template react
+cd usdc-frontend
+npm install
+
+# Replace src/App.jsx with usdc-wallet-frontend.jsx content
+# Then run:
+npm run dev
+```
+
+The frontend will be available at `http://localhost:3000` (CRA) or `http://localhost:5173` (Vite).
+
+---
+
+## 🖥️ Frontend Features
+
+| Feature | Description |
+|---------|-------------|
+| **Wallet Management** | Create wallets, view balances, copy wallet IDs |
+| **Mint USDC** | Simulate depositing USD and receiving USDC |
+| **Burn USDC** | Simulate redeeming USDC for USD |
+| **Transfer** | Send USDC between wallets with idempotency |
+| **Transaction History** | Real-time audit trail per wallet |
+| **Total Supply Tracker** | Shows circulating USDC (minted - burned) |
+
+### Frontend Screenshot
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  🔵 USDC Wallet                          Total Supply: $1,500   │
+│     STABLECOIN SIMULATOR                                        │
+├─────────────────────────────────────────────────────────────────┤
+│  [New Wallet] [Mint USDC] [Burn USDC] [Transfer]                │
+├─────────────────────────────────────────────────────────────────┤
+│  WALLETS (2)                    │  ALICE'S TRANSACTIONS         │
+│                                 │                               │
+│  ┌─────────────────────┐        │  ↓ Minted    +$1,000.00      │
+│  │ 👛 Alice            │        │    Jan 4, 10:30 AM           │
+│  │    $750.00          │        │                               │
+│  │    Selected ✓       │        │  → Transfer  -$250.00        │
+│  └─────────────────────┘        │    Jan 4, 10:32 AM           │
+│                                 │                               │
+│  ┌─────────────────────┐        │                               │
+│  │ 👛 Bob              │        │                               │
+│  │    $750.00          │        │                               │
+│  └─────────────────────┘        │                               │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -168,17 +234,37 @@ SELECT * FROM transactions WHERE wallet_id = 'abc123';
 
 **Why this matters:** Regulators (SEC, FinCEN) can request transaction history at any time.
 
+### 4. CORS (Cross-Origin Resource Sharing)
+
+The API includes CORS middleware to allow the frontend (running on a different port) to communicate with the backend:
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify exact origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+**Why this matters:** Browsers block cross-origin requests by default for security. CORS headers tell the browser it's safe to allow requests from the frontend origin.
+
 ---
 
 ## 🏗️ Project Structure
 
 ```
 usdc-wallet-api/
-├── main.py          # FastAPI app with all endpoints
-├── database.py      # SQLite database operations
-├── requirements.txt # Python dependencies
-├── README.md        # This file
-└── usdc_wallet.db   # SQLite database (created on first run)
+├── main.py                    # FastAPI app with all endpoints
+├── database.py                # SQLite database operations
+├── requirements.txt           # Python dependencies
+├── README.md                  # This file
+├── usdc_wallet.db             # SQLite database (created on first run)
+├── test.py                    # API test script
+└── usdc-wallet-frontend.jsx   # React frontend dashboard
 ```
 
 ---
@@ -193,6 +279,7 @@ usdc-wallet-api/
 | `/transfers` endpoint | USDC smart contract transfer() |
 | `/supply` endpoint | On-chain totalSupply() |
 | Transaction table | Blockchain + internal ledger |
+| React frontend | Circle's developer dashboard |
 
 ---
 
@@ -203,6 +290,8 @@ usdc-wallet-api/
 3. **Add webhooks** - Notify on transaction completion
 4. **Multi-currency** - Support EURC alongside USDC
 5. **Cross-chain simulation** - Simulate CCTP burn-and-mint
+6. **Real-time updates** - WebSocket for live transaction feeds
+7. **Mobile app** - React Native version of the dashboard
 
 ---
 
@@ -210,21 +299,28 @@ usdc-wallet-api/
 
 When discussing this project, you can mention:
 
-1. **"I built a simple wallet API to understand how stablecoins work"**
+1. **"I built a full-stack wallet application to understand how stablecoins work"**
    - Mint/burn mechanics
    - 1:1 backing requirement
+   - React frontend with real-time updates
 
 2. **"I implemented idempotency for the transfer endpoint"**
    - Critical for financial systems
    - Prevents duplicate transactions
+   - Frontend generates unique keys per transaction
 
 3. **"Every transaction is logged for audit compliance"**
    - Immutable transaction history
    - Required for regulatory compliance
+   - Visible in the transaction history UI
 
 4. **"I understand the difference between this simulation and real blockchain"**
    - Real USDC uses smart contracts
    - Actual transfers are on-chain and irreversible
+
+5. **"I handled CORS for secure frontend-backend communication"**
+   - Understanding of browser security model
+   - Production-ready API configuration
 
 ---
 
@@ -233,5 +329,21 @@ When discussing this project, you can mention:
 - [Circle Developer Docs](https://developers.circle.com)
 - [USDC Smart Contract](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48)
 - [What is USDC?](https://www.circle.com/usdc)
+- [FastAPI CORS Documentation](https://fastapi.tiangolo.com/tutorial/cors/)
+
+---
+
+## 🛠️ Troubleshooting
+
+### "Failed to fetch" error in frontend
+Make sure the backend is running with CORS enabled. Check that `main.py` includes the `CORSMiddleware` configuration.
+
+### "OPTIONS 405 Method Not Allowed"
+Your backend doesn't have CORS configured. Update `main.py` to include the CORS middleware.
+
+### Frontend not connecting to backend
+1. Verify backend is running: `curl http://localhost:8000/`
+2. Check frontend is pointing to correct URL (`http://localhost:8000`)
+3. Ensure no firewall is blocking the connection
 
 ---
