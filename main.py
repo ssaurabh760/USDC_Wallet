@@ -11,6 +11,7 @@ Built for learning crypto/fintech backend concepts.
 """
 
 from fastapi import FastAPI, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware  # ADD THIS
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
@@ -21,6 +22,17 @@ app = FastAPI(
     title="USDC Wallet API",
     description="A simulation of Circle's stablecoin infrastructure",
     version="1.0.0"
+)
+
+# =============================================================================
+# CORS CONFIGURATION - Allows frontend to communicate with API
+# =============================================================================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify exact origins like ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows GET, POST, PUT, DELETE, OPTIONS, etc.
+    allow_headers=["*"],  # Allows all headers including Content-Type
 )
 
 # Initialize database
